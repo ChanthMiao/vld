@@ -63,5 +63,5 @@ if test "$PHP_VLD" != "no"; then
 
   PHP_VLD_CFLAGS="$STD_CFLAGS $MAINTAINER_CFLAGS"
   PHP_ADD_MAKEFILE_FRAGMENT($abs_srcdir/Makefile.frag, $abs_srcdir)
-  PHP_NEW_EXTENSION(vld, vld.c srm_oparray.c set.c branchinfo.c, $ext_shared,,$PHP_VLD_CFLAGS)
+  PHP_NEW_EXTENSION(vld, vld.c srm_oparray.c set.c branchinfo.c cJSON.c json_patch.c, $ext_shared,,$PHP_VLD_CFLAGS)
 fi

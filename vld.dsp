@@ -96,6 +96,14 @@ SOURCE=.\srm_oparray.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\cJSON.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\json_patch.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\vld.c
 # End Source File
 # End Group
@@ -109,6 +117,14 @@ SOURCE=.\php_vld.h
 # Begin Source File
 
 SOURCE=.\srm_oparray.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\cJSON.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\json_patch.h
 # End Source File
 # End Group
 # End Target

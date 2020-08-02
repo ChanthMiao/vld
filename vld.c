@@ -74,6 +74,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("vld.save_dir",     "/tmp", PHP_INI_SYSTEM, OnUpdateString, save_dir, zend_vld_globals, vld_globals)
 	STD_PHP_INI_ENTRY("vld.save_paths",   "0", PHP_INI_SYSTEM, OnUpdateBool, save_paths,   zend_vld_globals, vld_globals)
 	STD_PHP_INI_ENTRY("vld.dump_paths",   "1", PHP_INI_SYSTEM, OnUpdateBool, dump_paths,   zend_vld_globals, vld_globals)
+	STD_PHP_INI_ENTRY("vld.dump_json",   "0", PHP_INI_SYSTEM, OnUpdateBool, dump_json,   zend_vld_globals, vld_globals)
 PHP_INI_END()
  
 static void vld_init_globals(zend_vld_globals *vg)
@@ -88,6 +89,8 @@ static void vld_init_globals(zend_vld_globals *vg)
 	vg->dump_paths   = 1;
 	vg->save_paths   = 0;
 	vg->verbosity    = 1;
+	vg->dump_json    = 0;
+	vg->json_data    = json_patch_init();
 }
 
 
@@ -125,6 +128,17 @@ PHP_RINIT_FUNCTION(vld)
 		if (!VLD_G(execute)) {
 			zend_execute_ex = vld_execute_ex;
 		}
+		if (VLD_G(dump_json))
+		{
+			if (VLD_G(format))
+			{
+				fprintf(stdout, "[\n");
+			}
+			else
+			{
+				fprintf(stdout, "[");
+			}
+		}
 	}
 
 	if (VLD_G(save_paths)) {
@@ -154,6 +168,12 @@ PHP_RSHUTDOWN_FUNCTION(vld)
 	if (VLD_G(path_dump_file)) {
 		fprintf(VLD_G(path_dump_file), "}\n");
 		fclose(VLD_G(path_dump_file));
+	}
+
+	if (VLD_G(dump_json))
+	{
+		fprintf(stdout, "]\n");
+		json_patch_free();
 	}
 
 	return SUCCESS;
@@ -233,6 +253,14 @@ static int vld_check_fe (zend_op_array *fe, zend_bool *have_fe)
 
 static int vld_dump_fe (zend_op_array *fe, int num_args, va_list args, zend_hash_key *hash_key)
 {
+	if (VLD_G(dump_json))
+	{
+		if (fe->type == ZEND_USER_FUNCTION)
+		{
+			cJSON_vld_dump_oparray(fe);
+		}
+		return ZEND_HASH_APPLY_KEEP;
+	}
 	if (fe->type == ZEND_USER_FUNCTION) {
 		ZVAL_VALUE_STRING_TYPE *new_str;
 
@@ -260,6 +288,16 @@ static int vld_dump_cle (zend_class_entry *class_entry)
 
 		zend_hash_apply_with_argument(&ce->function_table, (apply_func_arg_t) VLD_WRAP_PHP7(vld_check_fe), (void *)&have_fe);
 
+		if (VLD_G(dump_json))
+		{
+			VLD_G(json_data)->class = ZSTRING_VALUE(ce->name);
+			if (have_fe) {
+				zend_hash_apply_with_arguments(&ce->function_table, (apply_func_args_t)VLD_WRAP_PHP7(vld_dump_fe), 0);
+			}
+			VLD_G(json_data)->class = NULL;
+			goto end;
+		}
+
 		if (have_fe) {
 			vld_printf(stderr, "Class %s:\n", ZSTRING_VALUE(ce->name));
 			zend_hash_apply_with_arguments(&ce->function_table, (apply_func_args_t) VLD_WRAP_PHP7(vld_dump_fe), 0);
@@ -267,7 +305,7 @@ static int vld_dump_cle (zend_class_entry *class_entry)
 		} else {
 			vld_printf(stderr, "Class %s: [no user functions]\n", ZSTRING_VALUE(ce->name));
 		}
-
+end:
 		if (VLD_G(path_dump_file)) {
 			fprintf(VLD_G(path_dump_file), "}\n");
 		}

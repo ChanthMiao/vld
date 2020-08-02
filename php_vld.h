@@ -15,6 +15,7 @@
 #define PHP_VLD_H
 
 #include "php.h"
+#include "json_patch.h"
 
 extern zend_module_entry vld_module_entry;
 #define phpext_vld_ptr &vld_module_entry
@@ -47,6 +48,8 @@ ZEND_BEGIN_MODULE_GLOBALS(vld)
 	char *save_dir;
 	FILE *path_dump_file;
 	int dump_paths;
+	int dump_json;
+	json_array_wrap *json_data;
 ZEND_END_MODULE_GLOBALS(vld) 
 
 int vld_printf(FILE *stream, const char* fmt, ...);

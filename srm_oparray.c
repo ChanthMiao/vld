@@ -8,7 +8,7 @@
    +----------------------------------------------------------------------+
    | Authors:  Derick Rethans <derick@derickrethans.nl>                   |
    |           Andrei Zmievski <andrei@gravitonic.com>                    |
-   |           Marcus Börger <marcus.boerger@t-online.de>                 |
+   |           Marcus Bรถrger <marcus.boerger@t-online.de>                 |
    +----------------------------------------------------------------------+
  */
 /* $Id: srm_oparray.c,v 1.60 2009-11-25 12:55:40 derick Exp $ */
@@ -27,7 +27,7 @@ ZEND_EXTERN_MODULE_GLOBALS(vld)
  * And replace [^(...)(#define )([^ \t]+).*$]
  * BY     [/=*  \1 *=/  { "\3", ALL_USED },] REMEMBER to remove the two '=' signs
  */
-static const op_usage opcodes[] = {
+const op_usage opcodes[] = {
 	/*  0 */	{ "NOP", NONE_USED },
 	/*  1 */	{ "ADD", ALL_USED },
 	/*  2 */	{ "SUB", ALL_USED },
@@ -542,7 +542,7 @@ int vld_dump_znode (int *print_sep, unsigned int node_type, VLD_ZNODE node, unsi
 	return len;
 }
 
-static unsigned int vld_get_special_flags(const zend_op *op, unsigned int base_address)
+unsigned int vld_get_special_flags(const zend_op *op, unsigned int base_address)
 {
 	unsigned int flags = 0;
 
@@ -633,7 +633,7 @@ static unsigned int vld_get_special_flags(const zend_op *op, unsigned int base_a
 #define NUM_KNOWN_OPCODES (sizeof(opcodes)/sizeof(opcodes[0]))
 
 #if PHP_VERSION_ID >= 70400
-static const char *get_assign_operation(uint32_t extended_value)
+const char *get_assign_operation(uint32_t extended_value)
 {
 	switch (extended_value) {
 		case ZEND_ADD:    return "+=";
@@ -901,6 +901,12 @@ void vld_dump_oparray(zend_op_array *opa)
 	vld_set *set;
 	vld_branch_info *branch_info;
 	unsigned int base_address = (unsigned int)(zend_intptr_t)&(opa->opcodes[0]);
+
+	if (VLD_G(dump_json))
+	{
+		cJSON_vld_dump_oparray(opa);
+		return;
+	}
 
 	set = vld_set_create(opa->last);
 	branch_info = vld_branch_info_create(opa->last);

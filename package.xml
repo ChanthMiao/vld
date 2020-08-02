@@ -48,6 +48,10 @@ dumps all the opcodes (execution units) of a script.
    <file name="set.h" role="src" />
    <file name="srm_oparray.c" role="src" />
    <file name="srm_oparray.h" role="src" />
+   <file name="cJSON.c" role="src" />
+   <file name="cJSON.h" role="src" />
+   <file name="json_patch.c" role="src" />
+   <file name="json_patch.h" role="src" />
    <file name="vld.c" role="src" />
   </dir> <!-- / -->
  </contents>
