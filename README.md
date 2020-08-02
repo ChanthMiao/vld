@@ -43,7 +43,7 @@ echo $tainted;
 </html>
 ```
 
-执行`php -dvld.active=1 -dvld.execute=0 -dvld.dump_json=1 test.php`得到以下输出。
+执行`php -dvld.active=1 -dvld.execute=0 -dvld.dump_json=1 -dvld.format test.php`得到以下输出。
 
 ```json
 [
