@@ -46,6 +46,9 @@ extern const char *get_assign_operation(uint32_t extended_value);
     O = NULL;
 #endif
 
+const char *op_cols[] ={ "line", "#", "*", "E", "I", "O", "op_code", "op", "fetch", "ext", "return_type", "return", "op1_type", "op1", "op2_type", "op2", "ext_op_type", "ext_op" };
+const int verbosity_flags[] ={ 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 3, 1, 3, 1, 3, 1 };
+
 /* cJSON helper functions. */
 cJSON *cJSON_AddArrayToObjectCS(cJSON *obj, const char *key)
 {
@@ -286,10 +289,10 @@ cJSON *cJSON_vld_dump_zval(zval val, cJSON *array)
         return cJSON_vld_dump_zval_object(val.value, array);
     case IS_RESOURCE:
         return cJSON_vld_dump_zval_resource(val.value, array);
-#if PHP_VERSION_ID < 70300
+        #if PHP_VERSION_ID < 70300
     case IS_CONSTANT:
         return cJSON_vld_dump_zval_constant(val.value, array);
-#endif
+        #endif
     case IS_CONSTANT_AST:
         return cJSON_vld_dump_zval_constant_ast(val.value, array);
     case IS_UNDEF:
@@ -313,7 +316,7 @@ int cJSON_vld_dump_znode(cJSON *type_array, cJSON *value_array, unsigned int nod
     char *tbuf;
     char buf[128];
     int index = 0;
-    cJSON *cols[2] = {NULL, NULL};
+    cJSON *cols[2] ={ NULL, NULL };
 
     switch (node_type)
     {
@@ -340,17 +343,17 @@ int cJSON_vld_dump_znode(cJSON *type_array, cJSON *value_array, unsigned int nod
                 goto fail;
             }
         }
-#if PHP_VERSION_ID >= 70300
+        #if PHP_VERSION_ID >= 70300
         if (!cJSON_vld_dump_zval(*RT_CONSTANT((op_array->opcodes) + opline, node), value_array))
         {
             goto fail;
         }
-#else
+        #else
         if (!cJSON_vld_dump_zval(*RT_CONSTANT_EX(op_array->literals, node), value_array))
         {
             goto fail;
         }
-#endif
+        #endif
         break;
 
     case IS_TMP_VAR: /* 2 */
@@ -435,19 +438,19 @@ int cJSON_vld_dump_znode(cJSON *type_array, cJSON *value_array, unsigned int nod
                 goto fail;
             }
         }
-#if PHP_VERSION_ID >= 70300
+        #if PHP_VERSION_ID >= 70300
         if (!cJSON_vld_dump_zval(*RT_CONSTANT((op_array->opcodes) + opline, node), value_array))
         {
             goto fail;
         }
-#else
+        #else
         if (!cJSON_vld_dump_zval(*RT_CONSTANT_EX(op_array->literals, node), value_array))
         {
             goto fail;
         }
-#endif
+        #endif
         break;
-#if PHP_VERSION_ID >= 70200
+        #if PHP_VERSION_ID >= 70200
     case VLD_IS_JMP_ARRAY:
     {
         zval *array_value;
@@ -465,11 +468,11 @@ int cJSON_vld_dump_znode(cJSON *type_array, cJSON *value_array, unsigned int nod
             }
         }
 
-#if PHP_VERSION_ID >= 70300
+        #if PHP_VERSION_ID >= 70300
         array_value = RT_CONSTANT((op_array->opcodes) + opline, node);
-#else
+        #else
         array_value = RT_CONSTANT_EX(op_array->literals, node);
-#endif
+        #endif
         myht = Z_ARRVAL_P(array_value);
         jump_list = cJSON_CreateArray();
         ZVAL_VALUE_STRING_TYPE *new_str;
@@ -508,7 +511,7 @@ int cJSON_vld_dump_znode(cJSON *type_array, cJSON *value_array, unsigned int nod
         }
     }
     break;
-#endif
+    #endif
     default:
         if (VLD_G(verbosity) >= 3)
         {
@@ -523,7 +526,7 @@ int cJSON_vld_dump_znode(cJSON *type_array, cJSON *value_array, unsigned int nod
         }
     }
     return 1;
-fail:
+    fail:
     return 0;
 }
 
@@ -535,9 +538,8 @@ int cJSON_vld_dump_op(int nr, zend_op *op_ptr, unsigned int base_address, int no
     unsigned int flags, op1_type, op2_type, res_type;
     const zend_op op = op_ptr[nr];
     char buf[64];
-    const char *const_table[] = {"*", "E", ">", ">"};
-    int const_flags[] = {notdead ? 0 : 1, entry, start, end};
-    const char *col_name[] = {"line", "#", "*", "E", "I", "O", "op_code", "op", "fetch", "ext", "return_type", "return", "op1_type", "op1", "op2_type", "op2", "ext_op_type", "ext_op"};
+    const char *const_table[] ={ "*", "E", ">", ">" };
+    int const_flags[] ={ notdead ? 0 : 1, entry, start, end };
     static cJSON *pre_opa = NULL;
     static cJSON *cols[18];
     cJSON *col = NULL;
@@ -558,19 +560,18 @@ int cJSON_vld_dump_op(int nr, zend_op *op_ptr, unsigned int base_address, int no
         return 1;
     }
 
-    for (int i = 0; i < STR_ARRAY_LEN(col_name); i++)
+    for (int i = 0; i < STR_ARRAY_LEN(op_cols); i++)
     {
-        col = cJSON_GetObjectItem(op_arrays, col_name[i]);
-        if (!col)
+        if (VLD_G(verbosity) >= verbosity_flags[i] && !(cols[i] = cJSON_GetObjectItem(op_arrays, op_cols[i])))
         {
             memset(cols, 0, sizeof(cols));
             pre_opa = NULL;
             return 0;
         }
-        cols[i] = col;
+
     }
 
-handle:
+    handle:
     memset(buf, '\0', 64);
     if (op.opcode >= NUM_KNOWN_OPCODES)
     {
@@ -618,7 +619,7 @@ handle:
         op2_type = VLD_IS_JMP_ARRAY;
     }
 
-#if PHP_VERSION_ID >= 70000 && PHP_VERSION_ID < 70100
+    #if PHP_VERSION_ID >= 70000 && PHP_VERSION_ID < 70100
     switch (op.opcode)
     {
     case ZEND_FAST_RET:
@@ -638,23 +639,23 @@ handle:
         }
         break;
     }
-#endif
+    #endif
 
-#if PHP_VERSION_ID >= 70400
+    #if PHP_VERSION_ID >= 70400
     if (op.opcode == ZEND_ASSIGN_DIM_OP)
     {
         fetch_type = get_assign_operation(op.extended_value);
     }
-#endif
-#if PHP_VERSION_ID >= 70100
+    #endif
+    #if PHP_VERSION_ID >= 70100
     if (op.opcode == ZEND_NEW /* && op1_type == IS_UNUSED*/)
     {
         int ftype = op.op1.num & ZEND_FETCH_CLASS_MASK;
-#else
+        #else
     if (op.opcode == ZEND_FETCH_CLASS)
     {
         int ftype = op.extended_value & ZEND_FETCH_CLASS_MASK;
-#endif
+        #endif
         switch (ftype)
         {
         case ZEND_FETCH_CLASS_SELF:
@@ -669,7 +670,7 @@ handle:
         case ZEND_FETCH_CLASS_AUTO:
             fetch_type = "auto";
             break;
-        }
+    }
     }
 
     if (flags & OP_FETCH)
@@ -682,24 +683,24 @@ handle:
         case ZEND_FETCH_LOCAL:
             fetch_type = "local";
             break;
-#if PHP_VERSION_ID < 70100
+            #if PHP_VERSION_ID < 70100
         case ZEND_FETCH_STATIC:
             fetch_type = "static";
             break;
         case ZEND_FETCH_STATIC_MEMBER:
             fetch_type = "static member";
             break;
-#endif
-#ifdef ZEND_FETCH_GLOBAL_LOCK
+            #endif
+            #ifdef ZEND_FETCH_GLOBAL_LOCK
         case ZEND_FETCH_GLOBAL_LOCK:
             fetch_type = "global lock";
             break;
-#endif
-#ifdef ZEND_FETCH_AUTO_GLOBAL
+            #endif
+            #ifdef ZEND_FETCH_AUTO_GLOBAL
         case ZEND_FETCH_AUTO_GLOBAL:
             fetch_type = "auto global";
             break;
-#endif
+            #endif
         default:
             fetch_type = "unknown";
             break;
@@ -757,11 +758,11 @@ handle:
     col = cols[9];
     if (flags & EXT_VAL)
     {
-#if PHP_VERSION_ID >= 70300
+        #if PHP_VERSION_ID >= 70300
         tmp = op.opcode == ZEND_CATCH ? cJSON_AddStringRefToArray(col, "last") : cJSON_AddNumberToArray(col, (double)op.extended_value);
-#else
+        #else
         tmp = cJSON_AddNumberToArray(col, (double)op.extended_value);
-#endif
+        #endif
     }
     else
     {
@@ -772,13 +773,13 @@ handle:
         goto fail;
     }
 
-#if PHP_VERSION_ID >= 70100
+    #if PHP_VERSION_ID >= 70100
     if ((flags & RES_USED) && op.result_type != IS_UNUSED)
     {
-#else
+        #else
     if ((flags & RES_USED) && !(op.VLD_EXTENDED_VALUE(result) & EXT_TYPE_UNUSED))
     {
-#endif
+        #endif
         if (!cJSON_vld_dump_znode(cols[10], cols[11], res_type, op.result, base_address, opa, nr))
         {
             goto fail;
@@ -791,8 +792,8 @@ handle:
             if (!cJSON_AddNullToArray(cols[10]))
             {
                 goto fail;
-            }
         }
+    }
         if (!cJSON_AddNullToArray(cols[11]))
         {
             goto fail;
@@ -920,11 +921,11 @@ handle:
     }
     VLD_G(json_data)->inner_len++;
     return 1;
-fail:
+    fail:
     memset(cols, 0, sizeof(cols));
     pre_opa = NULL;
     return 0;
-}
+    }
 
 void vld_analyse_oparray_quiet(zend_op_array *opa, vld_set *set, vld_branch_info *branch_info);
 void vld_analyse_branch_quiet(zend_op_array *opa, unsigned int position, vld_set *set, vld_branch_info *branch_info);
@@ -1059,9 +1060,7 @@ void cJSON_vld_dump_oparray(zend_op_array *opa)
     vld_set *set;
     vld_branch_info *branch_info;
     unsigned int base_address = (unsigned int)(zend_intptr_t) & (opa->opcodes[0]);
-    const char *op_cols[] = {"line", "#", "*", "E", "I", "O", "op_code", "op", "fetch", "ext", "return_type", "return", "op1_type", "op1", "op2_type", "op2", "ext_op_type", "ext_op"};
-    const int verbosity_flags[] = {1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 3, 1, 3, 1, 3, 1};
-    const char *path_cols[] = {"sline", "eline", "sop", "eop", "outs"};
+    const char *path_cols[] ={ "sline", "eline", "sop", "eop", "outs" };
     cJSON *fn = cJSON_CreateObject();
     cJSON *tmp;
 
@@ -1122,7 +1121,7 @@ void cJSON_vld_dump_oparray(zend_op_array *opa)
             goto dump;
         }
     }
-dump:
+    dump:
     if (VLD_G(dump_paths))
     {
         if (fn)
@@ -1147,7 +1146,7 @@ dump:
                 }
             }
         }
-    only_dump:
+        only_dump:
         vld_branch_post_process(opa, branch_info);
         vld_branch_find_paths(branch_info);
         if (!cJSON_vld_branch_info_dump(opa, branch_info, fn))
