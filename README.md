@@ -165,8 +165,8 @@ $ find . -wholename "./good/*.php" -or -wholename "./bad/*.php"\
   cmd|getline dst;
   print vld, $1, ">",dst;
   close(cmd);
-  print "echo -ne \r No.",NR," "}
-  END{print ""}' vld="$VLD_COMMAND"|bash
+  print "echo -ne \r No.",NR," "}' vld="$VLD_COMMAND"|bash && \
+  echo -e "\ndone"
 ```
 
 以上命令可以在指定的子目录生成对应的json格式的vld分析报告，并附带进度显示。
