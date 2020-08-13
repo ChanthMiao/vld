@@ -121,11 +121,61 @@ echo $tainted;
 
 相比原版纯文本输出，对编程调用更为友好。
 
+## 脚本调用
+
+现假设我们需要对一批(10000+)独立的php脚本进行分析，且工作目录结构如下图所示。
+
+```txt
+pwd
+|--samples
+   |--good
+   |  |--g0001.php
+   |  |--g0002.php
+   |     ```
+   |--bad
+      |--b0001.php
+      |--b0002.php
+         ```
+```
+
+本仓库的`utils`子目录提供了一个用于快速生成同构路径信息的使用程序，自行编译并复制至系统`PATH`。
+
+```bash
+$ gcc utils/chloc.c -o utils/chloc && cp utils/chloc /usr/local/bin/
+# 复制文件至/usr/local/bin/需要root权限或sudo提取
+```
+
+然后，手动创建同结构的子目录（opcodes）用于存放vld的输出（如下图所示）。
+
+```txt
+pwd
+|--samples
+|--opcodes
+   |--good
+   |--bad
+```
+
+使用`find`和`awk`批量构建vld调用命令，具体命令如下。
+
+```bash
+$ export vld="php -dvld.active=1 -dvld.execute=0 -dvld.dump_json=1 -dvld.format=1 -dvld.verbosity=3"
+# 通过环境变量向awk传递vld命令
+$ find . -wholename "./good/*.php" -or -wholename "./bad/*.php"\
+  |awk '{cmd="chloc . ./opcodes .json "$1;
+  cmd|getline dst;
+  print vld, $1, ">",dst;
+  close(cmd);
+  print "echo -ne \r No.",NR," "}
+  END{print ""}' vld="$VLD_COMMAND"|bash
+```
+
+以上命令可以在指定的子目录生成对应的json格式的vld分析报告，并附带进度显示。
+
 ## TODO
 
 - [x] ~~补上原版输出中的branch info内容。~~
 - [x] ~~目前json输出走stdout，计划添加dump至文件的选项。~~
 - [x] ~~对大体积json输出做内存优化，防内存错误。~~
 - [x] ~~添加对class_table和function_table的支持。~~
-- [ ] 提供调用脚本demo(项目于2020/7月下旬开始了重构，原脚本作废)
+- [x] ~~提供调用脚本demo(项目于2020/7月下旬开始了重构，原脚本作废)~~
 - [ ] 等待新需求出现(欢迎提交issues)。
