@@ -160,7 +160,7 @@ pwd
 ```bash
 $ export vld="php -dvld.active=1 -dvld.execute=0 -dvld.dump_json=1 -dvld.format=1 -dvld.verbosity=3"
 # 通过环境变量向awk传递vld命令
-$ find . -wholename "./good/*.php" -or -wholename "./bad/*.php"\
+$ find . -wholename "./samples/good/*.php" -or -wholename "./samples/bad/*.php"\
   |awk '{cmd="chloc . ./opcodes .json "$1;
   cmd|getline dst;
   print vld, $1, ">",dst;
