@@ -174,8 +174,7 @@ $ find . -wholename "./samples/good/*.php" -or -wholename "./samples/bad/*.php"\
 ## TODO
 
 - [x] ~~补上原版输出中的branch info内容。~~
-- [x] ~~目前json输出走stdout，计划添加dump至文件的选项。~~
-- [x] ~~对大体积json输出做内存优化，防内存错误。~~
 - [x] ~~添加对class_table和function_table的支持。~~
 - [x] ~~提供调用脚本demo(项目于2020/7月下旬开始了重构，原脚本作废)~~
+- [x] ~~对大体积json输出做内存优化，防内存错误。~~
 - [ ] 等待新需求出现(欢迎提交issues)。
