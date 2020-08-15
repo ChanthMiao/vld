@@ -15,15 +15,15 @@
 
 #include "cJSON.h"
 
-typedef struct _json_array_wrap
+typedef struct _json_wrap
 {
-    cJSON *date;
+    cJSON *date; /* Reserved field for future development. */
     unsigned int inner_len;
     unsigned int outer_len;
     char *class;
-} json_array_wrap;
+} json_wrap;
 
-json_array_wrap *json_patch_init(void);
+json_wrap *json_patch_init(void);
 void json_patch_free(void);
 void cJSON_vld_dump_oparray(zend_op_array *opa);
 

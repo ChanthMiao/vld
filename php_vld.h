@@ -49,7 +49,7 @@ ZEND_BEGIN_MODULE_GLOBALS(vld)
 	FILE *path_dump_file;
 	int dump_paths;
 	int dump_json;
-	json_array_wrap *json_data;
+	json_wrap *json_data;
 ZEND_END_MODULE_GLOBALS(vld) 
 
 int vld_printf(FILE *stream, const char* fmt, ...);
