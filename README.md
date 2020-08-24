@@ -70,8 +70,8 @@ echo $tainted;
           "op1": ["%3C%21DOCTYPE+html%3E%0A%3Chtml%3E%0A%3Chead%2F%3E%0A%3Cbody%3E%0A", null, "!0", "!0", "safe", "_GET", "~5", "!0", "~6", "!0", "safe", "!0", "!1", null, "!1", null, "!1", "!1", "%3Ch1%3EHello+World%21%3C%2Fh1%3E%0A%3C%2Fbody%3E%0A%3C%2Fhtml%3E%0A", 1],
           "op2_type": [null, null, "IS_CONST (37)", "IS_UNUSED", "IS_UNUSED", null, "IS_CONST (32)", "IS_UNUSED", "IS_UNUSED", "IS_UNUSED", "IS_UNUSED", "IS_CONST (24)", "IS_TMP_VAR", "IS_CONST (21)", "IS_UNUSED", null, "IS_VAR", null, null, null],
           "op2": [null, null, "<array>", null, null, null, "userData", null, null, null, null, 1, "~8", "tainte", null, null, "$10", null, null, null],
-          "ext_op_type": [],
-          "ext_op": []
+          "ext_op_type": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+          "ext_op": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
      },
      "path": [[0]],
      "branch": {
@@ -105,8 +105,8 @@ echo $tainted;
           "op1": [null, "!0", "!1", "%3Cdiv+id%3D%27", "~4", "~5", null],
           "op2_type": [null, "IS_CONST (12)", "IS_TMP_VAR", "IS_CV", "IS_CONST (8)", null, null],
           "op2": [null, 0, "~2", "!1", "%27%3Econtent%3C%2Fdiv%3E", null, null],
-          "ext_op_type": [],
-          "ext_op": []
+          "ext_op_type": [null, null, null, null, null, null, null],
+          "ext_op": [null, null, null, null, null, null, null]
      },
      "path": [[0]],
      "branch": {
