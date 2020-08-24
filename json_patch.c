@@ -569,6 +569,7 @@ int cJSON_vld_dump_op(int nr, zend_op *op_ptr, unsigned int base_address, int no
             return 0;
         }
     }
+    pre_opa = op_arrays;
 
 handle:
     memset(buf, '\0', 64);
@@ -894,7 +895,7 @@ handle:
             goto fail;
         }
     }
-    if (flags & EXT_VAL_JMP_REL)
+    else if (flags & EXT_VAL_JMP_REL)
     {
         if (VLD_G(verbosity) >= 3)
         {
@@ -910,10 +911,24 @@ handle:
         }
     }
     /*  FIXME: Not sure if it would accessiable along with 'flag & EXT_VAL_JMP_*'. */
-    if ((flags & NOP2_OPNUM) && !(flags & (EXT_VAL_JMP_ABS | EXT_VAL_JMP_REL)))
+    else if (flags & NOP2_OPNUM)
     {
         zend_op next_op = op_ptr[nr + 1];
         if (!cJSON_vld_dump_znode(cols[16], cols[17], VLD_IS_OPNUM, next_op.op2, base_address, opa, nr))
+        {
+            goto fail;
+        }
+    }
+    else
+    {
+        if (VLD_G(verbosity) >= 3)
+        {
+            if (!cJSON_AddNullToArray(cols[16]))
+            {
+                goto fail;
+            }
+        }
+        if (!cJSON_AddNullToArray(cols[17]))
         {
             goto fail;
         }
