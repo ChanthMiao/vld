@@ -79,7 +79,7 @@ echo $tainted;
           "eline": [27],
           "sop": [0],
           "eop": [19],
-          "outs": [-2]
+          "outs": [[-2]]
      }
 },
 {
@@ -114,7 +114,7 @@ echo $tainted;
           "eline": [11],
           "sop": [0],
           "eop": [6],
-          "outs": []
+          "outs": [[]]
      }
 }]
 ```
