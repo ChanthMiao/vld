@@ -1034,12 +1034,21 @@ int cJSON_vld_branch_info_dump(zend_op_array *opa, vld_branch_info *branch_info,
                 return 0;
             }
 
+            tmp = cJSON_CreateArray();
+
             for (j = 0; j < branch_info->branches[i].outs_count; j++)
             {
-                if (branch_info->branches[i].outs[j] && !cJSON_AddNumberToArray(outs, (double)branch_info->branches[i].outs[j]))
+                if (branch_info->branches[i].outs[j] && !cJSON_AddNumberToArray(tmp, (double)branch_info->branches[i].outs[j]))
                 {
+                    cJSON_Delet_Wrap(tmp);
                     return 0;
                 }
+            }
+
+            if (!cJSON_AddItemToArray(outs, tmp))
+            {
+                cJSON_Delet_Wrap(tmp);
+                return 0;
             }
         }
     }
